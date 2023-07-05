@@ -1,0 +1,50 @@
+﻿
+
+<button class="btn btn-lg btn-outline" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasExample" aria-controls="offcanvasExample">
+	<i class="bi bi-list text-danger"></i>
+</button>
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasExample" aria-labelledby="offcanvasExampleLabel">
+	<div class="offcanvas-header">
+		<a class="navbar-brand fs-4" href="">Asset Recovery</a>
+	</div>
+
+	<div class="offcanvas-body">
+		<div class="nav-item">
+			<NavLink class="nav-link text-dark mx-1" href="/admin/loandata" Match="NavLinkMatch.All" data-bs-dismiss="offcanvas">
+				<span class="bi bi-buildings me-2" aria-hidden="true"></span> Asset Recovery
+			</NavLink>
+		</div>
+
+		<div class="nav-item">
+			<NavLink class="nav-link text-dark mx-1" href="/admin/downloadfiltereddata" Match="NavLinkMatch.All" data-bs-dismiss="offcanvas">
+				<span class="bi bi-file-earmark-richtext me-2" aria-hidden="true"></span> Report Download
+			</NavLink>
+		</div>
+
+		<AuthorizeView Roles="Admin">
+			<Authorized>
+				<div class="nav-item">
+					<NavLink class="nav-link text-dark mx-1" href="/admin/users" data-bs-dismiss="offcanvas">
+						<span class="bi bi-people me-2" aria-hidden="true"></span> Users
+					</NavLink>
+				</div>
+
+				<div class="nav-item">
+					<NavLink class="nav-link text-dark mx-1" href="/admin/roles" data-bs-dismiss="offcanvas">
+						<span class="bi bi-card-checklist me-2" aria-hidden="true"></span> Roles
+					</NavLink>
+				</div>
+			</Authorized>
+		</AuthorizeView>
+
+		<hr style="border-top: 1px solid red;"> <!-- Visible separator -->
+
+		<div class="nav-item">
+			<NavLink class="nav-link text-dark mx-1" href="Identity/Account/Logout" onclick="document.forms['logoutForm'].submit(); return false;">
+				<span class="bi bi-box-arrow-left text-danger me-2" aria-hidden="true"></span> Logout
+			</NavLink>
+			<form id="logoutForm" name="logoutForm" method="post" action="Identity/Account/Logout" style="display: none;"></form>
+		</div>
+	</div>
+</div>

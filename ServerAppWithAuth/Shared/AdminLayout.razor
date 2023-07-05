@@ -1,0 +1,83 @@
+﻿@inherits LayoutComponentBase
+@attribute [Authorize]
+
+
+<PageTitle>GPAssess</PageTitle>
+
+<AuthorizeView>
+	<Authorized>
+		
+@*		<div class="page">
+			<div class="sidebar " style="z-index:999;">
+				<NavMenu />
+			</div>
+			<main>
+				<div class="top-row px-4 auth" style="background-color: #ffffff;     box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);">
+					<LoginDisplay />
+
+				</div>
+
+				<article class="content px-4">
+
+					@Body
+
+				</article>
+			</main>
+		</div>*@
+
+
+		<div class="page">
+
+			<main >
+				<div class="d-flex justify-content-between top-row">
+					<NavMenu />
+					<LoginDisplay />
+				</div>
+
+				<article class="content px-4">
+					@Body
+				</article>
+
+			</main>
+
+		</div>
+
+
+		<footer class="footer bg-light">
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<p class="text-dark">&copy; @DateTime.Now.Year Asset Recovery Information</p>
+					</div>
+				</div>
+			</div>
+		</footer>
+
+	</Authorized>
+
+
+	<NotAuthorized>
+
+		<div class="container text-center mt-5">
+			<h1 class="display-4 mb-4">Oops! This page is off limits.</h1>
+			<p class="lead mb-4">Looks like you don't have permission to access this page. You're probably not cool enough.</p>
+			<p class="lead">If you want to be cool like the rest of us, you should <a href="Identity/Account/Login" class="text-decoration-none navbar-text fw-bold"><u>login</u></a>.</p>
+			<p class="mt-5"><img src="https://media.giphy.com/media/l2JJKs2QJfKOfy3Co/giphy.gif" alt="Go away cat"></p>
+		</div>
+
+		<footer class="footer">
+			<div class="container">
+				<div class="row">
+					<div class="col">
+						<p>&copy; 2023 GPAssess</p>
+					</div>
+				</div>
+			</div>
+		</footer>
+	</NotAuthorized>
+
+
+
+
+</AuthorizeView>
+
