@@ -3,16 +3,19 @@
 
 @inherits LayoutComponentBase
 
-<PageTitle>CMCAM</PageTitle>
+<PageTitle>@AppStrings.Title</PageTitle>
 
 <div class="page-container">
 
 	<nav class="navbar navbar-expand-lg bg-body-secondary">
+
 		<div class="container-fluid">
-			<a class="navbar-brand" href="#">
-				<img src="/bootstrap-logo.svg" alt="Logo" width="30" height="24" class="d-inline-block align-text-top">
-				Bootstrap
+
+			<a class="navbar-brand " href="#">
+				<img src="/bootstrap-logo.svg" alt="Logo" width="30" height="30" />
 			</a>
+			<a class="navbar-brand mt-1" href="#">@AppStrings.Title - MAIN LAYOUT</a>
+
 			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 				<span class="navbar-toggler-icon"></span>
 			</button>
@@ -21,32 +24,21 @@
 			<div class=" collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
 
 				<ul class="navbar-nav mb-2 mb-lg-0 ">
-
 					<LoginDisplay />
 
 					<li class="nav-item">
-						<a  class="nav-link bi @themePreferenceIcon" style="cursor:pointer;" @onclick=@ToggleTheme></a>
+						<a class="nav-link bi @themePreferenceIcon" style="cursor:pointer;" @onclick=@ToggleTheme></a>
 					</li>
 
-					@* SOME OTHER EXAMPLE ITEMS
-					<li class="nav-item">
-					<a class="nav-link active" aria-current="page" href="#">Home</a>
-					</li>
-					<li class="nav-item dropdown">
-					<a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-					Dropdown
-					</a>
-					<ul class="dropdown-menu">
-					<li><a class="dropdown-item" href="#">Action</a></li>
-					<li><a class="dropdown-item" href="#">Another action</a></li>
-					<li><hr class="dropdown-divider"></li>
-					<li><a class="dropdown-item" href="#">Something else here</a></li>
-					</ul>
-					</li>
-					<li class="nav-item">
-					<a class="nav-link disabled">Disabled</a>
-					</li>
-					*@
+					<AuthorizeView>
+						<Authorized>
+							<li class="nav-item">
+								<button class=" nav-link btn btn-outline" type="button" data-bs-toggle="offcanvas" data-bs-target="#offCanvasMain">
+									<i class="bi bi-list text-danger" ></i> Menu
+								</button>
+							</li>
+						</Authorized>
+					</AuthorizeView>
 
 				</ul>
 			</div>
@@ -54,11 +46,17 @@
 		</div>
 	</nav>
 
+	<AuthorizeView>
+		<Authorized>
+			<NavMenu />
+		</Authorized>
+	</AuthorizeView>
+
 	@Body
 
 	<footer class="slim-footer  bg-body-tertiary border-top pl-3 text-muted">
 		<div class="container">
-			<p>&copy; @DateTime.Now.Year <a style="color: rebeccapurple; font-weight: 600;">Shuman</a> ❤ Blazor Server</p>
+			<p>&copy; @DateTime.Now.Year <a style="color: rebeccapurple; font-weight: 600;">❤</a>  @AppStrings.Title v @AppStrings.Version</p>
 		</div>
 	</footer>
 

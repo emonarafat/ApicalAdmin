@@ -1,0 +1,10 @@
+﻿
+.custom-table td {
+    border: 1px solid #dee2e6;
+    text-align: center;
+}
+
+.custom-table th {
+    border: 1px solid #dee2e6;
+    text-align: center;
+}

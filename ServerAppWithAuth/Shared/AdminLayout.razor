@@ -1,83 +1,97 @@
-﻿@inherits LayoutComponentBase
+﻿@using Microsoft.JSInterop
+@inject IJSRuntime jsr
+
+@inherits LayoutComponentBase
 @attribute [Authorize]
 
+<PageTitle>MyApp</PageTitle>
 
-<PageTitle>GPAssess</PageTitle>
+<div class="page-container">
+	<AuthorizeView>
+		<Authorized>
+			<nav class="navbar navbar-expand-lg bg-body-secondary">
+				<div class="container-fluid">
+					<a class="navbar-brand " href="#">
+						<img src="/bootstrap-logo.svg" alt="Logo" width="30" height="30" />
+					</a>
+					<a class="navbar-brand mt-1" href="#">@AppStrings.Title - ADMIN LAYOUT</a>
 
-<AuthorizeView>
-	<Authorized>
-		
-@*		<div class="page">
-			<div class="sidebar " style="z-index:999;">
-				<NavMenu />
-			</div>
-			<main>
-				<div class="top-row px-4 auth" style="background-color: #ffffff;     box-shadow: 0 0 10px rgba(0, 0, 0, 0.7);">
-					<LoginDisplay />
+					<button class="navbar-toggler" type="button" data-bs-toggle="offcanvas" data-bs-target="#offCanvasMain">
+						<span class="navbar-toggler-icon"></span>
+					</button>
 
-				</div>
+					<div class=" collapse navbar-collapse justify-content-end" id="navBarCollapse">
+						<ul class="navbar-nav mb-2 mb-lg-0 ">
+							<LoginDisplay />
+							<li class="nav-item">
+								<a class="nav-link bi @themePreferenceIcon" style="cursor:pointer;" @onclick=@ToggleTheme></a>
+							</li>
+							<li class="nav-item">
 
-				<article class="content px-4">
+								<button class=" nav-link btn btn-outline" type="button" data-bs-toggle="offcanvas" data-bs-target="#offCanvasMain">
+									<i class="bi bi-list text-danger" ></i> Menu
+								</button>
 
-					@Body
+							</li>
 
-				</article>
-			</main>
-		</div>*@
-
-
-		<div class="page">
-
-			<main >
-				<div class="d-flex justify-content-between top-row">
-					<NavMenu />
-					<LoginDisplay />
-				</div>
-
-				<article class="content px-4">
-					@Body
-				</article>
-
-			</main>
-
-		</div>
-
-
-		<footer class="footer bg-light">
-			<div class="container">
-				<div class="row">
-					<div class="col">
-						<p class="text-dark">&copy; @DateTime.Now.Year Asset Recovery Information</p>
+						</ul>
 					</div>
+
 				</div>
-			</div>
-		</footer>
+			</nav>
 
-	</Authorized>
+			<NavMenu />
 
+			<article class="content px-4">
 
-	<NotAuthorized>
+				@Body
 
-		<div class="container text-center mt-5">
-			<h1 class="display-4 mb-4">Oops! This page is off limits.</h1>
-			<p class="lead mb-4">Looks like you don't have permission to access this page. You're probably not cool enough.</p>
-			<p class="lead">If you want to be cool like the rest of us, you should <a href="Identity/Account/Login" class="text-decoration-none navbar-text fw-bold"><u>login</u></a>.</p>
-			<p class="mt-5"><img src="https://media.giphy.com/media/l2JJKs2QJfKOfy3Co/giphy.gif" alt="Go away cat"></p>
-		</div>
+			</article>
 
-		<footer class="footer">
-			<div class="container">
-				<div class="row">
-					<div class="col">
-						<p>&copy; 2023 GPAssess</p>
-					</div>
+			<footer class="slim-footer  bg-body-tertiary border-top pl-3 text-muted">
+				<div class="container">
+					<p>&copy; @DateTime.Now.Year <a style="color: rebeccapurple; font-weight: 600;">❤</a>  @AppStrings.Title v @AppStrings.Version</p>
 				</div>
+			</footer>
+
+		</Authorized>
+
+		<NotAuthorized>
+			<div class="container text-center mt-5">
+				<h1 class="display-4 mb-4">Oops! This page is off limits.</h1>
+				<p class="lead mb-4">Looks like you don't have permission to access this page. You're probably not cool enough.</p>
+				<p class="lead">If you want to be cool like the rest of us, you should <a href="Identity/Account/Login" class="text-decoration-none navbar-text fw-bold"><u>login</u></a>.</p>
+				<p class="mt-5"><img src="https://media.giphy.com/media/l2JJKs2QJfKOfy3Co/giphy.gif" alt="Go away cat"></p>
 			</div>
-		</footer>
-	</NotAuthorized>
+
+			<footer class="slim-footer  bg-body-tertiary border-top pl-3 text-muted">
+				<div class="container">
+					<p>&copy; @DateTime.Now.Year <a style="color: rebeccapurple; font-weight: 600;">❤</a>  @AppStrings.Title v @AppStrings.Version</p>
+				</div>
+			</footer>
+		</NotAuthorized>
+
+	</AuthorizeView>
+
+</div>
 
 
+@code {
+	private string themePreferenceIcon = "bi-moon-stars";
 
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		themePreferenceIcon = GetThemePreferenceIcon(await jsr.InvokeAsync<string>("getSavedThemePreference"));
+		StateHasChanged();
+	}
 
-</AuthorizeView>
+	private async Task ToggleTheme()
+	{
+		themePreferenceIcon = GetThemePreferenceIcon(await jsr.InvokeAsync<string>("toggleThemePreference"));
+	}
 
+	private string GetThemePreferenceIcon(string mode)
+	{
+		return (mode == "light") ? "bi-moon-stars" : "bi-brightness-alt-high";
+	}
+}

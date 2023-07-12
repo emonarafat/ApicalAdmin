@@ -6,7 +6,7 @@
 .top-row {
     height: 3.5rem;
     background: linear-gradient(to right, #a5a5a5,white);
-    border-bottom: 1px solid red;
+    border-bottom: 1px solid grey;
 }
 
 .navbar-brand {
@@ -14,7 +14,7 @@
 }
 
 .offcanvas-header {
-    border-bottom: 1px solid red;
+    border-bottom: 1px solid grey;
     max-height: 56px;
 }
 
@@ -75,13 +75,13 @@
         line-height: 3rem;
     }
 
-        .nav-item ::deep a.active {
-            background-color: #d0d0d0;
+        /*        .nav-item ::deep a.active {
+            background-color: #87878750;
             color: white;
-        }
+        }*/
 
         .nav-item ::deep a:hover {
-            background-color: #bebebe;
+            background-color: #87878750;
             color: white;
         }
 

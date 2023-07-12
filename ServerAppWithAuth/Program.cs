@@ -1,15 +1,26 @@
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Identity.Client;
 using ServerAppWithAuth.Areas.Identity;
 using ServerAppWithAuth.Data;
 
 namespace ServerAppWithAuth
 {
+
+	public static class AppStrings
+	{
+		public static string Title { get; set; } = "ServerAppWithAuth";
+		public static string Version { get; set; } = "2023.07.12";
+	}
+	
 	public class Program
 	{
+
+
 		public static void Main(string[] args)
 		{
+
 			var builder = WebApplication.CreateBuilder(args);
 
 			// Add services to the container.
@@ -80,4 +91,6 @@ namespace ServerAppWithAuth
 			app.Run();
 		}
 	}
+
+
 }

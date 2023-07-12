@@ -1,0 +1,77 @@
+﻿@*
+	This Modal can be triggered from C# code using a bool.
+	This is usefull for popups that need to show AFTER a unit of work was done
+*@
+
+@if (ShowModal)
+{
+	<div class="modal fade show" style="display: block;" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+		<div class="modal-dialog @ModalSize">
+			<div class="modal-content">
+				<div class="modal-header @HeadingColor">
+					<h4 class="modal-title">@(new MarkupString(Title))</h4>
+					<button type="button" class="btn-close"  aria-label="Close" @onclick="() => OnButtonClick(false)"></button>
+				</div>
+				<div class="modal-body">
+					<p>@(new MarkupString(Message))</p>
+				</div>
+				<div class="modal-footer">
+					@if (ShowCancel)
+					{
+						<button type="button" class="btn @CancelBtnColor"  @onclick="() => OnButtonClick(false)">
+							<i class="bi bi-x-square  me-2"></i>Cancel
+						</button>
+					}
+					<button type="button" class="btn @OkBtnColor" @onclick="() => OnButtonClick(true)">
+						<i class="bi bi-check-square  me-2"></i>Confirm
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="modal-backdrop fade show"></div>
+}
+
+@code {
+
+	[Parameter]
+	public string Title { get; set; } = "CAUTION";
+
+	[Parameter]
+	public string Message { get; set; } = "Are you Sure?";
+
+	[Parameter]
+	public bool ShowModal { get; set; } = false;
+
+	[Parameter]
+	public bool ShowCancel { get; set; } = true;
+
+	[Parameter]
+	public string HeadingColor { get; set; } = "form-text";
+
+	[Parameter]
+	public string OkBtnColor { get; set; } = "btn-primary";
+
+	[Parameter]
+	public string CancelBtnColor { get; set; } = "btn-warning";
+
+	[Parameter]
+	public string ModalSize { get; set; } = "";
+	[Parameter]
+	public EventCallback<bool> OnConfirmed { get; set; }
+
+	[Parameter]
+	public EventCallback OnConfirm { get; set; }
+
+	[Parameter]
+	public EventCallback OnExplicitCancel { get; set; }
+
+	async Task OnButtonClick(bool confirmed)
+	{
+		if (confirmed ? OnConfirm.HasDelegate : OnExplicitCancel.HasDelegate)
+		{
+			await (confirmed ? OnConfirm : OnExplicitCancel).InvokeAsync();
+		}
+	}
+}

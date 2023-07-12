@@ -1,0 +1,70 @@
+﻿@*
+	This Modal can be triggered from html
+
+	BUT if you need a popup to be triggered from C# code
+	for instance after a unit of work has been done
+	then look at the ConditionalPopup.razor component
+*@
+
+<div class="modal fade" id="ConfirmPopup" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+	<div class="modal-dialog @ModalSize">
+		<div class="modal-content">
+			<div class='modal-header @HeadingColor'>
+				<h4 class="modal-title" id="exampleModalLabel">@(new MarkupString(Title))</h4>
+				<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+			</div>
+			<div class="modal-body">
+				<p>@(new MarkupString(Message))</p>
+			</div>
+			<div class="modal-footer">
+				@if (ShowCancel)
+				{
+					<button type="button" class="btn @CancelBtnColor" data-bs-dismiss="modal" @onclick="() => OnButtonClick(false)">
+						<i class="bi bi-x-square  me-2"></i>Cancel
+					</button>
+				}
+				<button type="button" class="btn @OkBtnColor" data-bs-dismiss="modal" @onclick="() => OnButtonClick(true)">
+					<i class="bi bi-check-square  me-2"></i>Confirm
+				</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+@code {
+
+	[Parameter]
+	public string Title { get; set; } = "Confirm";
+
+	[Parameter]
+	public string Message { get; set; } = "Are you Sure?";
+
+	[Parameter]
+	public bool ShowCancel { get; set; } = true;
+
+	[Parameter]
+	public string HeadingColor { get; set; } = "form-text";
+
+	[Parameter]
+	public string OkBtnColor { get; set; } = "btn-primary";
+
+	[Parameter]
+	public string CancelBtnColor { get; set; } = "btn-warning";
+
+	[Parameter]
+	public string ModalSize { get; set; } = "";
+
+	[Parameter]
+	public EventCallback OnConfirm { get; set; }
+
+	[Parameter]
+	public EventCallback OnExplicitCancel { get; set; }
+
+	async Task OnButtonClick(bool confirmed)
+	{
+		if (confirmed ? OnConfirm.HasDelegate : OnExplicitCancel.HasDelegate)
+		{
+			await (confirmed ? OnConfirm : OnExplicitCancel).InvokeAsync();
+		}
+	}
+}

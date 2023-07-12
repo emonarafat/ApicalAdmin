@@ -1,0 +1,88 @@
+﻿@page "/admin/adduser"
+@layout AdminLayout
+
+
+@inject NavigationManager NavigationManager
+@inject UserManager<IdentityUser> userManager
+
+<h3>Create New User</h3>
+<h5>Add a new identity to the system</h5>
+<hr />
+<div>
+	<div class="form-group mt-2">
+		<label>Email</label>
+		<InputText id="text" class="form-control" autocomplete="new-password" @bind-Value="email" />
+	</div>
+
+	<div class="form-group mt-2">
+		<label>Password</label>
+		<InputText type="password" class="form-control" autocomplete="new-password" @bind-Value="password" />
+	</div>
+
+	<div class="form-group mt-2">
+		<label for="inputPasswordConfirmation">Confirm Password</label>
+		<InputText type="password" id="inputPasswordConfirmation" class="form-control" @bind-Value="passwordConfirmation" />
+	</div>
+
+	<button class="btn btn-warning mt-4" data-bs-toggle="modal" href="#" data-bs-target="#exampleModal" @onclick="@(() => { NavigationManager.NavigateTo($"/admin/users", true);})">Cancel</button>
+	<button class="btn btn-primary mt-4" @onclick="HandleValidSubmit">Create</button>
+</div>
+
+
+@if (result != null && result.Succeeded)
+{
+	<ConfirmationPopup Title="success"
+					   Message="@($"User: <b>{user.Email}</b> was created!")"
+					   ShowCancel="false"
+					   OnConfirm="@(async (confirmed) => {NavigationManager.NavigateTo($"/admin/users", true);})">
+	</ConfirmationPopup>
+}
+
+else if (result != null && !result.Succeeded)
+{
+	if (result.Errors.Count() > 0)
+	{
+		<div class="alert alert-danger mt-2">
+			@foreach (var error in result.Errors)
+			{
+				<p>@error.Description</p>
+			}
+		</div>
+	}
+}
+
+@code {
+	private IdentityUser user = new IdentityUser();
+	private string email = "";
+	private string password = "";
+	private string passwordConfirmation = "";
+	private IdentityResult? result;
+
+	private async Task HandleValidSubmit()
+	{
+		result = new IdentityResult();
+
+		if (password == passwordConfirmation)
+		{
+			// Create the new user
+			user.UserName = user.Email = email;
+			user.PasswordHash = password;
+			result = await userManager.CreateAsync(user, user.PasswordHash);
+
+			if (result.Succeeded)
+			{
+				email = password = passwordConfirmation = "";
+			}
+			else
+			{
+				user.PasswordHash = passwordConfirmation;
+			}
+		}
+		else
+		{
+			result = IdentityResult.Failed(new IdentityError { Description = "Passwords do not match" });
+		}
+	}
+}
+
+
