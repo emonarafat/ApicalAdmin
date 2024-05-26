@@ -1,0 +1,193 @@
+﻿@page "/admin/users"
+
+
+
+@layout AdminLayout
+@inject NavigationManager NavigationManager
+@inject UserManager<IdentityUser> userManager
+@inject RoleManager<IdentityRole> roleManager
+@inject ApplicationDbContext dbContext
+
+
+<h3>All Users</h3>
+<h5>Users with the roles they are allowed</h5>
+<hr />
+@if (users == null)
+{
+	<p>Loading...</p>
+}
+else
+{
+
+
+	<table class="table table-striped table-hover custom-table">
+		<thead>
+			<tr>
+				<th><i class="bi bi-gear-fill"></i></th>
+				<th>Username</th>
+				<th>Email</th>
+				<th>Roles</th>
+			</tr>
+		</thead>
+		<tbody>
+			@foreach (var user in users)
+			{
+				<tr>
+					<td>
+						<div class="btn-group dropend">
+							<button type="button" class="btn btn-warning dropdown-toggle" data-bs-toggle="dropdown">
+								<i class="bi bi-gear-fill"></i>
+							</button>
+							<ul class="dropdown-menu">
+								<li>
+									<a class="dropdown-item" href="/admin/users" @onclick="@(() => {userQueuedForRoleSetup = user;})">
+										<i class="bi bi-toggles2 text-primary me-2" />Set Roles
+									</a>
+								</li>
+								<li><hr class="dropdown-divider"></li>
+								<li>
+									<a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#confirmPopup" @onclick="@(() => {userQueuedForDelete = user;})">
+										<i class="bi bi-trash3 text-danger me-2" />Delete!
+									</a>
+								</li>
+							</ul>
+						</div>
+					</td>
+					<td>@user.UserName</td>
+					<td>@user.Email</td>
+
+					<td>
+						@{
+							var roles = userRoles[user.Id];
+						}
+						@if (roles.Count > 0)
+						{
+							<ul>
+								@foreach (var role in roles)
+								{
+									<li>@role</li>
+								}
+							</ul>
+						}
+						else
+						{
+							<p>No roles assigned</p>
+						}
+					</td>
+				</tr>
+			}
+		</tbody>
+	</table>
+
+	<button class="btn btn-primary mt-4" onclick="window.location.href='/admin/adduser'">Create New User</button>
+}
+
+
+<ConfirmationPopup Title="Careful"
+				   Message="@($"Are you sure you want to delete: <br /> <b style='font-size: 1.2em;'> {userQueuedForDelete?.UserName} </b> <br /> This is permanent!")"
+				   ShowCancel="true"
+				   OnConfirm="@(async () => await DeleteUser())"
+				   OnExplicitCancel="@(() => { userQueuedForDelete = null;})">
+</ConfirmationPopup>
+
+
+@if(userQueuedForRoleSetup is not null)
+{
+
+<SetUserRole ShowModal=@(userQueuedForRoleSetup is not null)
+			 User="@(userQueuedForRoleSetup)"
+			 AvailableRoles="@availableRoles"
+			
+			 UserRoles="@userRoles[userQueuedForRoleSetup?.Id!]"
+			
+			 OnSave="@( async (roles) => { await SetUserRoles(roles);})"
+			 OnCancel="@(() => { userQueuedForRoleSetup = null;})">
+</SetUserRole>
+	
+}
+
+
+
+@code {
+
+	private IdentityUser? userQueuedForDelete = null;
+	private IdentityUser? userQueuedForRoleSetup = null;
+	private ConfirmationPopup? confirmDelete;
+
+	private Dictionary<string, List<IdentityRole>> userRoles = new Dictionary<string, List<IdentityRole>>();
+	private List<IdentityUser>? users;
+	private List<IdentityRole>? availableRoles;
+
+
+	protected override async Task OnInitializedAsync()
+	{
+
+		users = await dbContext.Users.ToListAsync();
+		foreach (var user in users)
+		{
+			var roles = await userManager.GetRolesAsync(user);
+
+			var identityRoles = new List<IdentityRole>();
+			foreach (var roleName in roles)
+			{
+				var identityRole = await roleManager.FindByNameAsync(roleName);
+				if (identityRole != null)
+				{
+					identityRoles.Add(identityRole);
+				}
+			}
+
+			userRoles[user.Id] = identityRoles;
+		}
+
+		availableRoles = await roleManager.Roles.ToListAsync();
+
+		confirmDelete = new ConfirmationPopup(); // initialize the reference
+		StateHasChanged();
+	}
+
+
+	protected async Task SetUserRoles(List<string> selectedRoles)
+	{
+		if (userQueuedForRoleSetup != null)
+		{
+			// Clear the user's roles
+			await userManager.RemoveFromRolesAsync(userQueuedForRoleSetup, await userManager.GetRolesAsync(userQueuedForRoleSetup));
+
+			// Add the selected roles to the user
+			var result = await userManager.AddToRolesAsync(userQueuedForRoleSetup, selectedRoles);
+
+
+			// Clear the queued user
+			userQueuedForRoleSetup = null;
+
+			NavigationManager.NavigateTo($"/admin/users", true);
+		}
+	}
+
+
+	protected async Task DeleteUser()
+	{
+		if (userQueuedForDelete != null)
+		{
+
+			var result = await userManager.DeleteAsync(userQueuedForDelete);
+			if (result.Succeeded)
+			{
+				// Remove user from any roles they are in
+				var userRoles = await userManager.GetRolesAsync(userQueuedForDelete);
+				if (userRoles.Count() > 0)
+				{
+					foreach (var roleName in userRoles)
+					{
+						await userManager.RemoveFromRoleAsync(userQueuedForDelete, roleName);
+					}
+				}
+
+				// Remove user from the list of users
+				users?.Remove(userQueuedForDelete);
+			}
+		}
+	}
+
+}

@@ -1,0 +1,149 @@
+﻿@if (User != null)
+{
+
+	@if (ShowModal)
+	{
+		<div class="modal fade show" style="display: block;" data-bs-backdrop="static" data-bs-keyboard="false" aria-hidden="true">
+			<div class="modal-dialog @ModalSize">
+				<div class="modal-content">
+					<div class="modal-header @HeadingColor">
+
+						@*<h4 class="modal-title">@(new MarkupString(Title))</h4>*@
+
+
+						<h5>Set Roles</h5>
+
+						<button type="button" class="btn-close" aria-label="Close"></button>
+
+
+					</div>
+					<div class="modal-body">
+						<h5 class="text-center"><b>&nbsp;@User.UserName</b></h5>
+
+
+
+						@if (!IsLoading)
+						{
+							@foreach (var role in Roles)
+							{
+								<div>
+									<input type="checkbox" @bind="role.IsChecked" /> @role.Name
+								</div>
+							}
+						}
+						else
+						{
+							<div class="loading-spinner-container">
+								<div class="loading-spinner"></div>
+							</div>
+						}
+
+
+
+
+					</div>
+
+
+
+
+					<div class="modal-footer">
+
+					
+							<button class="btn btn-secondary" @onclick="Cancel">Cancel</button>
+							<button class="btn btn-primary" @onclick="Save">&nbsp;Save&nbsp;</button>
+					
+
+
+						@*						@if (ShowCancel)
+				{
+				<button type="button" class="btn @CancelBtnColor" @onclick="() => OnButtonClick(false)">
+				<i class="bi bi-x-square  me-2"></i>Cancel
+				</button>
+				}
+				<button type="button" class="btn @OkBtnColor" @onclick="() => OnButtonClick(true)">
+				<i class="bi bi-check-square  me-2"></i>Confirm
+				</button>*@
+
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div class="modal-backdrop fade show"></div>
+	}
+
+}
+
+@code {
+
+	[Parameter]
+	public bool ShowModal { get; set; } = false;
+
+	[Parameter]
+	public string Title { get; set; } = "CAUTION";
+
+	[Parameter]
+	public string HeadingColor { get; set; } = "form-text";
+
+	[Parameter]
+	public string OkBtnColor { get; set; } = "btn-primary";
+
+	[Parameter]
+	public string CancelBtnColor { get; set; } = "btn-warning";
+
+	[Parameter]
+	public string ModalSize { get; set; } = "";
+
+	[Parameter]
+	public IdentityUser? User { get; set; }
+
+	[Parameter]
+	public List<IdentityRole> AvailableRoles { get; set; } = new List<IdentityRole>();
+
+	[Parameter]
+	public List<IdentityRole> UserRoles { get; set; } = new List<IdentityRole>();
+
+	[Parameter]
+	public EventCallback<List<string>> OnSave { get; set; }
+
+	[Parameter]
+	public EventCallback OnCancel { get; set; }
+
+	private List<RoleViewModel> Roles { get; set; } = new List<RoleViewModel>();
+	private Boolean IsLoading = false;
+
+	protected override void OnParametersSet()
+	{
+		base.OnParametersSet();
+
+		Roles = AvailableRoles.Select(r =>
+		{
+			var isChecked = UserRoles.Any(ur => ur.Id == r.Id);
+			return new RoleViewModel { Id = r.Id, Name = r.Name!, IsChecked = isChecked };
+
+		}).ToList();
+	}
+
+	private async Task Save()
+	{
+		IsLoading = true;
+		var selectedRoles = Roles.Where(r => r.IsChecked).Select(r => r.Name).ToList();
+		await OnSave.InvokeAsync(selectedRoles);
+	}
+
+	private async Task Cancel()
+	{
+		// do nothing
+		User = null;
+		await OnCancel.InvokeAsync();
+	}
+
+
+	private class RoleViewModel
+	{
+		public string Id { get; set; } = string.Empty;
+		public string Name { get; set; } = string.Empty;
+		public bool IsChecked { get; set; }
+	}
+
+}

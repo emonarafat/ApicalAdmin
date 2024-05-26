@@ -1,0 +1,121 @@
+﻿@using Microsoft.AspNetCore.Hosting
+@using Microsoft.AspNetCore.Mvc.ViewEngines
+@inject IWebHostEnvironment Environment
+@inject ICompositeViewEngine Engine
+@using Apical
+
+<!DOCTYPE html>
+<html >
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@AppStrings.Title</title>
+
+	<environment include="Development">
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+		<link href="~/css/site.css" rel="stylesheet" />
+		<link rel="stylesheet" href="~/Identity/css/site.css" />
+	</environment>
+
+	<environment exclude="Development">
+		<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"
+			  integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous"
+			  asp-fallback-href="~/Identity/lib/bootstrap/dist/css/bootstrap.min.css"
+			  asp-fallback-test-class="sr-only" asp-fallback-test-property="position" asp-fallback-test-value="absolute" />
+		<link rel="stylesheet" href="~/Identity/css/site.css" asp-append-version="true" />
+	</environment>
+
+	<script>
+		var savedTheme = localStorage.getItem('themePreference') || 'light';
+		document.documentElement.style.display = 'none';
+	</script>
+</head>
+
+<body>
+	<header>
+		<nav class="navbar navbar-expand-lg bg-body-secondary">
+			<div class="container-fluid">
+				<a class="navbar-brand " href="~/">
+					<img src="/bootstrap-logo.svg" alt="Logo" width="30" height="30" />
+				</a>
+				<a class="navbar-brand mt-1" href="~/">@AppStrings.Title - IDENTITY LAYOUT</a>
+				
+				<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<div class=" collapse navbar-collapse justify-content-end" id="navbarSupportedContent">
+					<ul class="navbar-nav mb-2 mb-lg-0 ">
+						@{
+							var result = Engine.FindView(ViewContext, "_LoginPartial", isMainPage: false);
+						}
+						@if (result.Success)
+						{
+							await Html.RenderPartialAsync("_LoginPartial");
+						}
+						else
+						{
+							throw new InvalidOperationException("The default Identity UI layout view '_LoginPartial' was not found. ");
+						}
+					</ul>
+				</div>
+			</div>
+		</nav>
+	</header>
+
+	<div class="container-fluid">
+		<partial name="_CookieConsentPartial" optional />
+		<main role="main" class="pb-1">
+			@RenderBody()
+		</main>
+	</div>
+
+	<footer class="slim-footer  bg-body-tertiary border-top pl-3 text-muted">
+		<div class="container">
+			<p>&copy; @DateTime.Now.Year <a style="color: rebeccapurple; font-weight: 600;">❤</a>  @AppStrings.Title v @AppStrings.Version</p>
+		</div>
+	</footer>
+
+	<environment include="Development">
+		<script src="~/Identity/lib/jquery/dist/jquery.js"></script>
+		<script src="~/Identity/lib/bootstrap/dist/js/bootstrap.bundle.js"></script>
+		<script src="~/Identity/js/site.js" asp-append-version="true"></script>
+	</environment>
+	<environment exclude="Development">
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"
+				asp-fallback-src="~/Identity/lib/jquery/dist/jquery.min.js"
+				asp-fallback-test="window.jQuery"
+				crossorigin="anonymous"
+				integrity="sha384-ZvpUoO/+PpLXR1lu4jmpXWu80pZlYUAfxl5NsBMWOEPSjUn/6Z/hRTt8+pR6L4N2">
+		</script>
+		<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js"
+				asp-fallback-src="~/Identity/lib/bootstrap/dist/js/bootstrap.bundle.min.js"
+				asp-fallback-test="window.jQuery && window.jQuery.fn && window.jQuery.fn.modal"
+				crossorigin="anonymous"
+				integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj">
+		</script>
+		<script src="~/Identity/js/site.js" asp-append-version="true"></script>
+	</environment>
+
+	@await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+
+<script lang="javascript">
+
+	document.addEventListener('DOMContentLoaded', function () {
+		applyTheme(savedTheme);
+		document.documentElement.style.display = '';
+	});
+
+	function  toggleThemePreference() {
+		savedTheme = ((savedTheme === 'dark') ? 'light' : 'dark');
+		applyTheme(savedTheme);
+		localStorage.setItem('themePreference', savedTheme);
+	}
+
+	function applyTheme(theme) {
+		document.querySelector('body')?.setAttribute('data-bs-theme', theme);
+	}
+
+</script>
